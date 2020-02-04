@@ -3,7 +3,7 @@
 from util import debug, run
 import os
 
-def run_tests():
+def run_tests() -> None:
   run(["ninja"])
   debug("")
 

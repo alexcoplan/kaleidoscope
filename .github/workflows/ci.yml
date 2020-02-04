@@ -10,9 +10,9 @@ jobs:
     - name: apt-update
       run: sudo apt update
     - name: apt-install-ninja
-      run: sudo apt install ninja-build
+      run: sudo apt install ninja-build mypy
     - name: mypy
-      run: mypy --strict configure.py
+      run: mypy --strict configure.py run_tests.py
     - name: configure
       run: ./configure.py
     - name: check
