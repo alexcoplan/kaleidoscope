@@ -1,0 +1,19 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: apt-update
+      run: sudo apt update
+    - name: apt-install-ninja
+      run: sudo apt install ninja-build
+    - name: mypy
+      run: mypy --strict configure.py
+    - name: configure
+      run: ./configure.py
+    - name: check
+      run: ./run_tests.py
