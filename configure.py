@@ -46,7 +46,7 @@ class Sanitizer(Enum):
   fuzzer = 4
 
 class SanitizerInfo:
-  def __init__(self, arg : str):
+  def __init__(self, arg : str) -> None:
     self.mask : int = 0
     self.cflags : str = ""
     self.ldflags : str = ""
@@ -77,7 +77,7 @@ class Program:
     self.ldflags = ldflags
 
 class ObjectFile:
-  def __init__(self, src_file : str):
+  def __init__(self, src_file : str) -> None:
     self.name, self.ext = src_file.split(".")
 
   def is_cpp(self) -> bool:
@@ -121,7 +121,7 @@ class BuildConfig:
     return f"{self.mode}-{san_flags}san"
 
 class BuildEnv:
-  def __init__(self, configs : List[BuildConfig]):
+  def __init__(self, configs : List[BuildConfig]) -> None:
     self.configs = configs
 
     # maps object file names -> ObjectFile objects
