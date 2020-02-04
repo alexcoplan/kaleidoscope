@@ -1,6 +1,8 @@
 *.swp
 build.ninja
 build
+.ninja_deps
+.ninja_log
 __pycache__
 .mypy_cache
 .DS_Store
