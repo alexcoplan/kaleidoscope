@@ -1,0 +1,8 @@
+*.swp
+build.ninja
+build
+__pycache__
+.mypy_cache
+.DS_Store
+corpora
+tmp
