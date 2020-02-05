@@ -1,8 +1,8 @@
-#include "parser.hpp"
-
 #include <cstdio>
 #include <memory>
 #include <map>
+
+#include "parser.hpp"
 
 static std::unique_ptr<ExprAST> logError(const char *str)
 {
