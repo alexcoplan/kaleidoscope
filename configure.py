@@ -12,9 +12,13 @@ from typing import Dict, List, TextIO, Tuple, Optional
 import artefacts # user's build definitions
 
 base_flags  = "-g -Wall -Wextra -Wpedantic -Werror -fcolor-diagnostics"
-base_flags += " -Wno-error=unused-parameter -Wno-error=unused-function"
+base_flags += " -Wno-unused-parameter -Wno-error=unused-function"
 base_flags += " -Wno-gnu-zero-variadic-macro-arguments"
 base_flags += " -Wno-error=unused-private-field"
+
+llvm_config_exe = "llvm-config"
+llvm_ldflags = f" `{llvm_config_exe} --ldflags --system-libs --libs core`"
+llvm_cxxflags = f" `{llvm_config_exe} --cxxflags`"
 
 ninja_vars = {
   "baseflags" : base_flags,
@@ -104,8 +108,8 @@ class BuildConfig:
     self.vars = copy.deepcopy(ninja_vars)
     self.vars["builddir"] = f"build/{self.name()}"
     self.vars["cflags"] = f"${self.name()}_baseflags -std=c11"
-    self.vars["cxxflags"] = f"${self.name()}_baseflags -std=c++14"
-    self.vars["ldflags"] = f"-L${self.name()}_builddir"
+    self.vars["cxxflags"] = f"${self.name()}_baseflags {llvm_cxxflags}"
+    self.vars["ldflags"] = f"-L${self.name()}_builddir {llvm_ldflags}"
     self.vars["baseflags"] += " -Iinclude"
     self.vars["baseflags"] += self.san_info.cflags
     self.vars["ldflags"] += self.san_info.ldflags

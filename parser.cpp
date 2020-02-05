@@ -1,8 +1,39 @@
+#include "llvm/ADT/STLExtras.h"
+
 #include <cstdio>
 #include <memory>
 #include <map>
 
 #include "parser.hpp"
+
+// AST debugging/testing functions.
+
+std::string NumberExprAST::describe() const
+{
+  char buf[256];
+  snprintf(buf, sizeof(buf), "%g", val);
+  return buf;
+}
+
+std::string VariableExprAST::describe() const
+{
+  return "var:" + name;
+}
+
+std::string BinaryExprAST::describe() const
+{
+  return op + std::string("(") + lhs->describe() + "," + rhs->describe() + ")";
+}
+
+std::string CallExprAST::describe() const
+{
+  std::string result = "call:" + callee + "(";
+  for (auto &arg : args) {
+    result += arg->describe() + ",";
+  }
+  result += ")";
+  return result;
+}
 
 static std::unique_ptr<ExprAST> logError(const char *str)
 {
@@ -33,20 +64,18 @@ int Parser::getTokPrecedence()
     { '*', 40 },
   };
 
-  int tokPrec;
-  try {
-    tokPrec = binopPrecedence.at(curTok);
-  } catch (const std::out_of_range &e) {
-    tokPrec = -1;
-  }
-  return tokPrec;
+  auto it = binopPrecedence.find(curTok);
+  if (it == binopPrecedence.end())
+    return -1; // not found
+
+  return it->second;
 }
 
 // Expects to be acalled when the current token is a tok_number.
 // numberexpr ::= number
 std::unique_ptr<ExprAST> Parser::parseNumberExpr()
 {
-  auto result = std::make_unique<NumberExprAST>(lex.numVal);
+  auto result = llvm::make_unique<NumberExprAST>(lex.numVal);
   getNextToken();
   return std::move(result);
 }
@@ -77,7 +106,7 @@ std::unique_ptr<ExprAST> Parser::parseIdentifierExpr()
   getNextToken(); // eat identifier
 
   if (curTok != '(') // simple variable ref
-    return std::make_unique<VariableExprAST>(idName);
+    return llvm::make_unique<VariableExprAST>(idName);
 
   // Function call...
   getNextToken(); // eat (
@@ -101,7 +130,7 @@ std::unique_ptr<ExprAST> Parser::parseIdentifierExpr()
   }
 
   getNextToken(); // eat ')'
-  return std::make_unique<CallExprAST>(idName, std::move(args));
+  return llvm::make_unique<CallExprAST>(idName, std::move(args));
 }
 
 std::unique_ptr<ExprAST> Parser::parsePrimary()
@@ -159,7 +188,7 @@ std::unique_ptr<ExprAST> Parser::parseBinOpRHS(int prec,
     }
 
     // Merge lhs/rhs.
-    lhs = std::make_unique<BinaryExprAST>(binOp, std::move(lhs), std::move(rhs));
+    lhs = llvm::make_unique<BinaryExprAST>(binOp, std::move(lhs), std::move(rhs));
   }
 }
 
@@ -185,7 +214,7 @@ std::unique_ptr<PrototypeAST> Parser::parsePrototype()
 
   // success.
   getNextToken(); // eat ')'
-  return std::make_unique<PrototypeAST>(fnName, std::move(argNames));
+  return llvm::make_unique<PrototypeAST>(fnName, std::move(argNames));
 }
 
 /// definition ::= 'def' prototype expression
@@ -198,7 +227,7 @@ std::unique_ptr<FunctionAST> Parser::parseDefinition()
     return nullptr;
 
   if (auto e = parseExpression())
-    return std::make_unique<FunctionAST>(std::move(proto), std::move(e));
+    return llvm::make_unique<FunctionAST>(std::move(proto), std::move(e));
 
   return nullptr;
 }
@@ -215,8 +244,8 @@ std::unique_ptr<FunctionAST> Parser::parseTopLevelExpr()
 {
   if (auto e = parseExpression()) {
     // Make an anonymous proto.
-    auto proto = std::make_unique<PrototypeAST>("", std::vector<std::string>());
-    return std::make_unique<FunctionAST>(std::move(proto), std::move(e));
+    auto proto = llvm::make_unique<PrototypeAST>("", std::vector<std::string>());
+    return llvm::make_unique<FunctionAST>(std::move(proto), std::move(e));
   }
   return nullptr;
 }

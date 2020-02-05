@@ -1,3 +1,7 @@
+import subprocess
+
+llvm_cxxflags = subprocess.check_output(["llvm-config", "--cxxflags"]).split()
+
 base_flags = [
 '-Wall',
 '-Wextra',
@@ -11,9 +15,7 @@ c_flags = [
   '-std=c11',
 ]
 
-cpp_flags = [
-  '-std=c++14',
-]
+cpp_flags = base_flags + llvm_cxxflags
 
 def FlagsForFile(filename):
   cpp_exts = ["cpp", "hpp"]

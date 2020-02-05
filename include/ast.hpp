@@ -3,9 +3,21 @@
 #include <string>
 #include <vector>
 
+// Forward declarations.
+struct CodeGenContext;
+namespace llvm {
+  class Value;
+  class Function;
+};
+
 /// ExprAST - base class for all expression nodes
 struct ExprAST {
   virtual ~ExprAST() {}
+
+  /// Construct a textual representation of the AST fragment,
+  /// intended for testing and debugging.
+  virtual std::string describe() const = 0;
+  virtual llvm::Value *codegen(CodeGenContext &ctx) const = 0;
 };
 
 /// NumberExprAST - Expression class for numeric literals like "1.0".
@@ -15,6 +27,8 @@ class NumberExprAST : public ExprAST {
 public:
   NumberExprAST(double val) : val(val) {}
   double getVal() const { return val; }
+  virtual std::string describe() const;
+  virtual llvm::Value *codegen(CodeGenContext &ctx) const;
 };
 
 /// VariableExprAST - Expression class for referencing a variable, like "a".
@@ -24,6 +38,8 @@ class VariableExprAST : public ExprAST {
 public:
   VariableExprAST(const std::string &name) : name(name) {}
   const std::string &getName() const { return name; }
+  virtual std::string describe() const;
+  virtual llvm::Value *codegen(CodeGenContext &ctx) const;
 };
 
 /// BinaryExprAST - Expression class for a binary operator.
@@ -41,6 +57,8 @@ public:
   char getOp() const { return op; }
   const ExprAST *getLHS() const { return lhs.get(); }
   const ExprAST *getRHS() const { return rhs.get(); }
+  virtual std::string describe() const;
+  virtual llvm::Value *codegen(CodeGenContext &ctx) const;
 };
 
 /// CallExprAST - Expression class for function calls.
@@ -52,6 +70,8 @@ public:
   CallExprAST(const std::string &callee,
       std::vector<std::unique_ptr<ExprAST>> args) :
     callee(callee), args(std::move(args)) {}
+  virtual std::string describe() const;
+  virtual llvm::Value *codegen(CodeGenContext &ctx) const;
 };
 
 /// PrototypeAST - This class represents the "prototype" for a function,
@@ -64,8 +84,8 @@ class PrototypeAST {
 public:
   PrototypeAST(const std::string &name, std::vector<std::string> args) :
     name(name), args(std::move(args)) {}
-
   const std::string &getName() const { return name; }
+  llvm::Function *codegen(CodeGenContext &ctx) const;
 };
 
 /// FunctionAST - This class represents a function definition itself.
@@ -77,4 +97,5 @@ public:
   FunctionAST(std::unique_ptr<PrototypeAST> proto,
       std::unique_ptr<ExprAST> body) :
     proto(std::move(proto)), body(std::move(body)) {}
+  llvm::Function *codegen(CodeGenContext &ctx) const;
 };
