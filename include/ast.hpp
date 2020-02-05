@@ -38,6 +38,9 @@ public:
     op(op_),
     lhs(std::move(lhs)),
     rhs(std::move(rhs)) {}
+  char getOp() const { return op; }
+  const ExprAST *getLHS() const { return lhs.get(); }
+  const ExprAST *getRHS() const { return rhs.get(); }
 };
 
 /// CallExprAST - Expression class for function calls.
