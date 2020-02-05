@@ -1,3 +1,5 @@
+#include "llvm/Support/raw_ostream.h"
+
 #include "codegen.hpp"
 #include "parser.hpp"
 

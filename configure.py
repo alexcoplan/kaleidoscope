@@ -15,6 +15,8 @@ base_flags  = "-g -Wall -Wextra -Wpedantic -Werror -fcolor-diagnostics"
 base_flags += " -Wno-unused-parameter -Wno-error=unused-function"
 base_flags += " -Wno-gnu-zero-variadic-macro-arguments"
 base_flags += " -Wno-error=unused-private-field"
+base_flags += " -Wno-unused-command-line-argument" # llvm on ubuntu
+base_flags += " -Wno-unknown-warning-option" # llvm on ubuntu
 
 llvm_config_exe = "llvm-config"
 llvm_ldflags = f" `{llvm_config_exe} --ldflags --system-libs --libs core`"
