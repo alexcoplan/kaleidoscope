@@ -12,7 +12,7 @@ c_flags = [
 ]
 
 cpp_flags = [
-  '-std=c++11',
+  '-std=c++14',
 ]
 
 def FlagsForFile(filename):
